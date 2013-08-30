@@ -59,11 +59,21 @@ namespace HashidsNet.test {
 		}
 
 		[Test]
+		public void it_encrypts_n_longs() {
+			Assert.AreEqual("jxypk9w2frmlyvk19cqjr8jmeapj34ry7", hashids.Encrypt(1234567890,9876543210,654987321,456123789));
+		}
+
+		[Test]
 		public void it_decrypts_longs() {
 			Assert.AreEqual(1234567890, hashids.Decrypt("y2jl7rm5").First());
 			Assert.AreEqual(9876543210, hashids.Decrypt("q2dxzp4vq").First());
 			Assert.AreEqual(123, hashids.Decrypt("77m").First());
 			Assert.AreEqual(789456, hashids.Decrypt("43l3w7").First());
+		}
+
+		[Test]
+		public void it_decrypts_n_longs() {
+			Assert.AreEqual(new List<long>() { 1234567890, 9876543210, 654987321, 456123789 }, hashids.Decrypt("jxypk9w2frmlyvk19cqjr8jmeapj34ry7"));
 		}
 
 	}
