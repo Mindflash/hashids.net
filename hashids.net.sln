@@ -5,6 +5,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net", "Hashids.net\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hashids.net.test", "Hashids.net.test\Hashids.net.test.csproj", "{CCEDE06C-E296-4B83-9900-07749E4ED07F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9AADE34B-0036-462B-84B8-5C7457470F29}"
+	ProjectSection(SolutionItems) = preProject
+		.travis.yml = .travis.yml
+		CI.proj = CI.proj
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -12,9 +12,6 @@ namespace HashidsNet {
 		public const int MIN_ALPHABET_LENGTH = 16;
 		public const int MIN_HASH_LENGTH = 0;
 
-		private const double SEP_DIV = 3.5;
-		private const double GUARD_DIV = 12.0;
-
 		public string Salt { get; private set; }
 		public int MinHashLength { get; private set; }
 		public string Alphabet { get; private set; }
@@ -33,7 +30,6 @@ namespace HashidsNet {
 			Salt = salt;
 			MinHashLength = minHashLength;
 
-
 			// separators should be in the alphabet
 			Separators = DEFAULT_SEPARATORS;
 			Separators = new String(Separators.Where(x => Alphabet.Contains(x)).ToArray());
@@ -49,12 +45,12 @@ namespace HashidsNet {
 			if (string.IsNullOrWhiteSpace(Alphabet) || Alphabet.Length < MIN_ALPHABET_LENGTH)
 				throw new ArgumentException("alphabet must contain atleast " + MIN_ALPHABET_LENGTH + " unique, non-separator characters.", "alphabet");
 
-
-			if (Separators.Length == 0 || (Alphabet.Length / Separators.Length) > SEP_DIV) {
-				int sepsLength = (int)Math.Ceiling(Alphabet.Length / SEP_DIV);
+			double sepDivisor = 3.5;
+			if (Separators.Length == 0 || (Alphabet.Length / Separators.Length) > sepDivisor) {
+				int sepsLength = (int)Math.Ceiling(Alphabet.Length / sepDivisor);
 
 				if (sepsLength == 1)
-					sepsLength++; // because, well, 2 is better than 1, and 1 is the loneliest number
+					sepsLength++;
 
 				if (sepsLength > Separators.Length) {
 					int diff = sepsLength - Separators.Length;
@@ -65,8 +61,9 @@ namespace HashidsNet {
 				}
 			}
 
+			double guardDivisor = 12.0;
 			Alphabet = ConsistentShuffle(input: Alphabet, salt: Salt);
-			int guardCount = (int)Math.Ceiling(Alphabet.Length / GUARD_DIV);
+			int guardCount = (int)Math.Ceiling(Alphabet.Length / guardDivisor);
 
 			if (Alphabet.Length < 3) {
 				Guards = Separators.Substring(0, guardCount);

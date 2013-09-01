@@ -22,7 +22,7 @@ namespace HashidsNet.test {
 		public virtual void Dispose() {
 			hashids = null;
 		}
-		
+
 		[Test]
 		public void it_requires_an_alphabet() {
 			Assert.Throws<ArgumentNullException>(() => new Hashids(alphabet: ""));
@@ -44,36 +44,128 @@ namespace HashidsNet.test {
 		}
 
 		[Test]
-		public void it_consistently_shuffles() { // down the sidewalk
-			Assert.AreEqual("564123", Hashids.ConsistentShuffle(input: "123456", salt: "this is my salt"));
-			Assert.AreEqual("sinypushttimi", Hashids.ConsistentShuffle(input: "thisismyinput", salt: "this is my salt"));
-			Assert.AreEqual("sftoidoeuoousdhwrn", Hashids.ConsistentShuffle(input: "tddsureisfunwoohoo", salt: "this is my salt"));
-		}
-		
-		[Test]
-		public void it_encrypts_longs() {
-			Assert.AreEqual("y2jl7rm5", hashids.Encrypt(1234567890));
-			Assert.AreEqual("q2dxzp4vq", hashids.Encrypt(9876543210));
-			Assert.AreEqual("77m", hashids.Encrypt(123));
-			Assert.AreEqual("43l3w7", hashids.Encrypt(789456));
+		public void ConsistentShuffle_shuffles_identical_to_the_nodejs_lib() {
+			var shuffleResultsFromNodeLib = new Dictionary<string, string>() { 
+				{"564123", "123456"},
+				{"sinypushttimi", "thisismyinput"},
+				{"sftoidoeuoousdhwrn", "tddsureisfunwoohoo"}
+			};
+			foreach (var kvp in shuffleResultsFromNodeLib) {
+				Assert.AreEqual(kvp.Key, Hashids.ConsistentShuffle(input: kvp.Value, salt: salt));
+			}
 		}
 
 		[Test]
-		public void it_encrypts_n_longs() {
-			Assert.AreEqual("jxypk9w2frmlyvk19cqjr8jmeapj34ry7", hashids.Encrypt(1234567890,9876543210,654987321,456123789));
+		public void it_encrypts_longs_identical_to_the_nodejs_lib() {
+			var resultsFromNodeLib = new Dictionary<string, long>() { 
+				{"y2jl7rm5", 1234567890},
+				{"q2dxzp4vq", 9876543210},
+				{"77m", 123},
+				{"43l3w7", 789456}
+			};
+			foreach (var kvp in resultsFromNodeLib) {
+				Assert.AreEqual(kvp.Key, hashids.Encrypt(kvp.Value));
+			}
 		}
 
 		[Test]
-		public void it_decrypts_longs() {
-			Assert.AreEqual(1234567890, hashids.Decrypt("y2jl7rm5").First());
-			Assert.AreEqual(9876543210, hashids.Decrypt("q2dxzp4vq").First());
-			Assert.AreEqual(123, hashids.Decrypt("77m").First());
-			Assert.AreEqual(789456, hashids.Decrypt("43l3w7").First());
+		public void it_encrypts_and_decrypts_large_numbers() {
+			for (long i = 1000000000L; i < 1000010000L; i++)
+				Assert.AreEqual(i, hashids.Decrypt(hashids.Encrypt(i)).First());
 		}
 
 		[Test]
-		public void it_decrypts_n_longs() {
-			Assert.AreEqual(new List<long>() { 1234567890, 9876543210, 654987321, 456123789 }, hashids.Decrypt("jxypk9w2frmlyvk19cqjr8jmeapj34ry7"));
+		public void it_consistently_encrypts_large_numbers() {
+			var store = new Dictionary<long, string>();
+			for (long i = 1000000000L; i < 1000000100L; i++)
+				store.Add(i, hashids.Encrypt(i));
+
+			for (long i = 0; i < 10000; i++) {
+				foreach (var item in store)
+					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
+			}
+		}
+
+		[Test]
+		public void it_encrypts_and_decrypts_lists_of_large_numbers() {
+			var input = new List<long>();
+
+			for (long i = 1000000000L, j = 1; i < 1000010000L; i++, j++) {
+				input.Add(i);
+				if (j % 5 == 0) {
+					Assert.AreEqual(input, hashids.Decrypt(hashids.Encrypt(input.ToArray())));
+					input = new List<long>();
+				}
+			}
+		}
+
+		[Test]
+		public void it_consistently_encrypts_lists_of_large_numbers() {
+			var store = new Dictionary<long[], string>();
+			var input = new List<long>();
+
+			for (long i = 1000000000L, j = 1; i < 1000000100L; i++, j++) {
+				input.Add(i);
+				if (j % 5 == 0) {
+					store.Add(input.ToArray(), hashids.Encrypt(input.ToArray()));
+					input = new List<long>();
+				}
+			}
+
+			for (long i = 0; i < 10000; i++) {
+				foreach (var item in store)
+					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
+			}
+		}
+
+		[Test]
+		public void it_encrypts_and_decrypts_small_numbers() {
+			for (long i = 0L; i < 10000L; i++)
+				Assert.AreEqual(i, hashids.Decrypt(hashids.Encrypt(i)).First());
+		}
+
+		[Test]
+		public void it_consistently_encrypts_small_numbers() {
+			var store = new Dictionary<long, string>();
+			for (long i = 0L; i < 100L; i++)
+				store.Add(i, hashids.Encrypt(i));
+
+			for (long i = 0; i < 10000; i++) {
+				foreach (var item in store)
+					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
+			}
+		}
+
+		[Test]
+		public void it_encrypts_and_decrypts_lists_of_small_numbers() {
+			var input = new List<long>();
+
+			for (long i = 0l, j = 1; i < 100L; i++, j++) {
+				input.Add(i);
+				if (j % 5 == 0) {
+					Assert.AreEqual(input, hashids.Decrypt(hashids.Encrypt(input.ToArray())));
+					input = new List<long>();
+				}
+			}
+		}
+
+		[Test]
+		public void it_consistently_encrypts_lists_of_small_numbers() {
+			var store = new Dictionary<long[], string>();
+			var input = new List<long>();
+
+			for (long i = 0l, j = 1; i < 100L; i++, j++) {
+				input.Add(i);
+				if (j % 5 == 0) {
+					store.Add(input.ToArray(), hashids.Encrypt(input.ToArray()));
+					input = new List<long>();
+				}
+			}
+
+			for (long i = 0; i < 10000; i++) {
+				foreach (var item in store)
+					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
+			}
 		}
 
 	}
