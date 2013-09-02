@@ -70,8 +70,8 @@ namespace HashidsNet.test {
 
 		[Test]
 		public void it_encrypts_and_decrypts_large_numbers() {
-			for (long i = 1000000000L; i < 1000010000L; i++)
-				Assert.AreEqual(i, hashids.Decrypt(hashids.Encrypt(i)).First());
+			for (long i = 1000000000L; i < 1000001000L; i++)
+				Assert.AreEqual(i, hashids.DecryptOne(hashids.Encrypt(i)));
 		}
 
 		[Test]
@@ -90,7 +90,7 @@ namespace HashidsNet.test {
 		public void it_encrypts_and_decrypts_lists_of_large_numbers() {
 			var input = new List<long>();
 
-			for (long i = 1000000000L, j = 1; i < 1000010000L; i++, j++) {
+			for (long i = 1000000000L, j = 1; i < 1000001000L; i++, j++) {
 				input.Add(i);
 				if (j % 5 == 0) {
 					Assert.AreEqual(input, hashids.Decrypt(hashids.Encrypt(input.ToArray())));
@@ -112,7 +112,7 @@ namespace HashidsNet.test {
 				}
 			}
 
-			for (long i = 0; i < 10000; i++) {
+			for (long i = 0; i < 1000; i++) {
 				foreach (var item in store)
 					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
 			}
@@ -120,8 +120,8 @@ namespace HashidsNet.test {
 
 		[Test]
 		public void it_encrypts_and_decrypts_small_numbers() {
-			for (long i = 0L; i < 10000L; i++)
-				Assert.AreEqual(i, hashids.Decrypt(hashids.Encrypt(i)).First());
+			for (long i = 0L; i < 1000L; i++)
+				Assert.AreEqual(i, hashids.DecryptOne(hashids.Encrypt(i)));
 		}
 
 		[Test]
@@ -130,7 +130,7 @@ namespace HashidsNet.test {
 			for (long i = 0L; i < 100L; i++)
 				store.Add(i, hashids.Encrypt(i));
 
-			for (long i = 0; i < 10000; i++) {
+			for (long i = 0; i < 1000; i++) {
 				foreach (var item in store)
 					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
 			}
@@ -162,9 +162,19 @@ namespace HashidsNet.test {
 				}
 			}
 
-			for (long i = 0; i < 10000; i++) {
+			for (long i = 0; i < 1000; i++) {
 				foreach (var item in store)
 					Assert.AreEqual(item.Value, hashids.Encrypt(item.Key));
+			}
+		}
+
+		[Test]
+		public void it_encrypts_and_decrypts_random_numbers() {
+			var random = new Random();
+			int r = 0;
+			for (long i = 0; i < 1000; i++) {
+				r = random.Next();
+				Assert.AreEqual(r, hashids.DecryptOne(hashids.Encrypt(r)));
 			}
 		}
 

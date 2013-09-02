@@ -74,20 +74,24 @@ namespace HashidsNet {
 			}
 		}
 
+		public string Encrypt(List<long> input) {
+			return Encrypt(input: input.ToArray());
+		}
+
 		public string Encrypt(params long[] input) {
 			StringBuilder ret = new StringBuilder();
 			int numbersSize = input.Length;
 			int numbersHashInt = 0;
 			string alphabet = Alphabet;
 
-			for(int i = 0; i < numbersSize; i++) {
+			for (int i = 0; i < numbersSize; i++) {
 				numbersHashInt += (int)(input[i] % (i + 100));
 			}
 
 			char lottery = alphabet[numbersHashInt % alphabet.Length];
 			ret.Append(lottery);
 
-			for(int i = 0; i < numbersSize; i++) {
+			for (int i = 0; i < numbersSize; i++) {
 				long number = input[i];
 				string buffer = lottery + Salt + alphabet;
 
@@ -97,19 +101,19 @@ namespace HashidsNet {
 				ret.Append(last);
 
 				if (i + 1 < input.Length) {
-					number %= (int)(last.ToString()[0]) + i;
+					number %= (int)(last[0]) + i;
 					int sepsIndex = (int)(number % Separators.Length);
 					ret.Append(Separators[sepsIndex]);
 				}
 			}
 
 			if (ret.Length < MinHashLength) {
-				int guardIndex = (numbersHashInt + (int)(ret.ToString()[0])) % Guards.Length;
+				int guardIndex = (numbersHashInt + (int)(ret[0])) % Guards.Length;
 				char guard = Guards[guardIndex];
 				ret.Insert(0, guard);
 
 				if (ret.Length < MinHashLength) {
-					guardIndex = (numbersHashInt + (int)(ret.ToString()[2])) % Guards.Length;
+					guardIndex = (numbersHashInt + (int)(ret[2])) % Guards.Length;
 					guard = Guards[guardIndex];
 					ret.Append(guard);
 				}
@@ -124,11 +128,16 @@ namespace HashidsNet {
 
 				int excess = ret.Length - MinHashLength;
 				if (excess > 0) {
-					ret = new StringBuilder(ret.ToString().Substring(excess / 2, MinHashLength));
+					ret.Remove(0, excess / 2);
+					ret.Remove(MinHashLength, ret.Length - MinHashLength);
 				}
 			}
 
 			return ret.ToString();
+		}
+
+		public long DecryptOne(string input) {
+			return Decrypt(input: input).FirstOrDefault();
 		}
 
 		public List<long> Decrypt(string input) {
@@ -139,7 +148,7 @@ namespace HashidsNet {
 			string[] hashArray = guardsRegex.Split(input);
 
 			int i = 0;
-			if(hashArray.Length == 3 || hashArray.Length == 2)
+			if (hashArray.Length == 3 || hashArray.Length == 2)
 				i = 1;
 
 			string hashBreakdown = hashArray[i];
