@@ -14,11 +14,9 @@ var hashids = new Hashids(
 );
 
 // encrypting 
-
 // a simple long
 var encrypted = hashids.Encrypt(1234567890); // result: "y2jl7rm5"
-
-// encrypting N longs
+// N longs
 encrypted = hashids.Encrypt(1234567890,9876543210,654987321,456123789)); 
 // OR
 encrypted = hashids.Encrypt(new List<long>(){1234567890,9876543210,654987321,456123789})); 
