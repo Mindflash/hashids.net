@@ -46,7 +46,7 @@ namespace HashidsNet {
 				throw new ArgumentException("alphabet must contain atleast " + MIN_ALPHABET_LENGTH + " unique, non-separator characters.", "alphabet");
 
 			double sepDivisor = 3.5;
-			if (Separators.Length == 0 || (Alphabet.Length / Separators.Length) > sepDivisor) {
+			if ((Separators.Length == 0) || (((double)Alphabet.Length / (double)Separators.Length) > sepDivisor)) {
 				int sepsLength = (int)Math.Ceiling(Alphabet.Length / sepDivisor);
 
 				if (sepsLength == 1)
